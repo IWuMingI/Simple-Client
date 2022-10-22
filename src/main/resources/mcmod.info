@@ -1,0 +1,19 @@
+[
+  {
+    "modid": "wuming",
+    "name": "SimpleClient",
+    "description": "Free Hacked Client Simple-Client By WuMing|WanFeng",
+    "version": "${version}",
+    "mcversion": "${mcversion}",
+    "url": "",
+    "updateUrl": "",
+    "authorList": [
+      "Wuming",
+      "WanFeng"
+    ],
+    "credits": "",
+    "logoFile": "",
+    "screenshots": [],
+    "dependencies": []
+  }
+]

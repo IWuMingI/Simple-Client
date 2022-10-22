@@ -1,0 +1,122 @@
+buildscript {
+    repositories {
+        mavenLocal()
+        mavenCentral()
+        maven { url = "https://files.minecraftforge.net/maven" }
+        maven { url = "https://plugins.gradle.org/m2" }
+        maven { url = 'https://repo.spongepowered.org/maven' }
+        maven { url = "https://jitpack.io/" }
+    }
+
+    dependencies {
+        classpath "net.minecraftforge.gradle:ForgeGradle:2.1-SNAPSHOT"
+        classpath "gradle.plugin.com.matthewprenger:CurseGradle:1.0.10"
+        classpath 'com.github.xcfrg:mixingradle:0.6-SNAPSHOT'
+        classpath "com.github.jengelman.gradle.plugins:shadow:4.0.4"
+    }
+}
+
+apply plugin: "net.minecraftforge.gradle.forge"
+apply plugin: "com.github.johnrengelman.shadow"
+apply plugin: "java"
+apply plugin: 'org.spongepowered.mixin'
+
+repositories {
+    mavenLocal()
+    mavenCentral()
+    maven { url = "https://repo.spongepowered.org/repository/maven-public/" }
+    maven { url = "https://jitpack.io/" }
+    maven { url = "https://fdpclient.club/" }
+    maven { url = "https://lss233.littleservice.cn/repositories/minecraft/" }
+}
+
+version = "v0.1"
+group="cn.wuming"
+archivesBaseName = "SimpleClient"
+
+sourceCompatibility = JavaVersion.VERSION_1_8
+targetCompatibility = JavaVersion.VERSION_1_8
+compileJava.options.encoding = 'UTF-8'
+
+minecraft {
+    version = "1.8.9-11.15.1.2318-1.8.9"
+    runDir = "run"
+    mappings = "stable_22"
+    makeObfSourceJar = true
+    clientJvmArgs += ["-Dfml.coreMods.load=cn.wuming.simple.injection.MixinLoader", "-Xmx1024m -Xms1024m", "-Ddev-mode"]
+}
+
+dependencies {
+    implementation("org.spongepowered:mixin:0.7.11-SNAPSHOT") {
+        transitive = false
+        exclude module: "guava"
+        exclude module: "commons-io"
+        exclude module: "gson"
+        exclude module: "launchwrapper"
+        exclude module: "log4j-core"
+        exclude module: "slf4j-api"
+    }
+    annotationProcessor("org.spongepowered:mixin:0.7.11-SNAPSHOT")
+}
+
+tasks.withType(JavaCompile) {
+    options.encoding = "UTF-8"
+}
+
+processResources {
+    inputs.property "version", project.version
+    inputs.property "mcversion", project.minecraft.version
+
+    from(sourceSets.main.resources.srcDirs) {
+        include 'mcmod.info'
+
+        expand 'version':project.version, 'mcversion':project.minecraft.version
+    }
+
+    from(sourceSets.main.resources.srcDirs) {
+        exclude 'mcmod.info'
+    }
+}
+
+mixin {
+    add sourceSets.main, "mixins.clientbase.refmap.json"
+}
+
+shadowJar {
+    baseName = 'Simple-client'
+    classifier = null
+    version = null
+    dependencies {
+        include(dependency('org.spongepowered:mixin:0.7.11-SNAPSHOT'))
+    }
+    duplicatesStrategy DuplicatesStrategy.EXCLUDE
+    exclude 'dummyThing'
+    exclude 'LICENSE.txt'
+
+    classifier = "full"
+}
+
+build.dependsOn(shadowJar)
+
+jar {
+    manifest.attributes(
+            "MixinConfigs": 'mixins.clientbase.json',
+            "tweakClass": 'org.spongepowered.asm.launch.MixinTweaker',
+            "TweakOrder": 0,
+            "FMLCorePluginContainsFMLMod": 'net.superblaubeere27.clientbase.injection.MixinLoader'
+    )
+}
+
+configurations {
+    mods
+    shade
+    compile.extendsFrom shade
+}
+
+apply plugin: "idea"
+
+idea {
+    module {
+        inheritOutputDirs = true
+    }
+}
