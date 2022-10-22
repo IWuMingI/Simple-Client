@@ -1,0 +1,16 @@
+{
+  "required": true,
+  "package": "cn.wuming.simple.injection.mixins",
+  "refmap": "mixins.clientbase.refmap.json",
+  "priority": 2000,
+  "compatibilityLevel": "JAVA_8",
+  "mixins": [
+    "MixinEntityPlayerSP",
+    "MixinGuiIngame",
+    "MixinGuiScreen",
+    "MixinGuiSpectator",
+    "MixinMinecraft",
+    "MixinNetworkManager",
+    "MixinRenderer"
+  ]
+}
